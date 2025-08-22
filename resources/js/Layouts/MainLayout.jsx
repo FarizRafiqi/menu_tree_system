@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo.jsx';
 import { Icon } from '@iconify/react';
-import { usePage } from '@inertiajs/react';
 
 const menus = [
     {
@@ -27,15 +26,25 @@ const menus = [
 // helper: render item Link/anchor + active state
 function NavItem({ item, isActive, collapsed }) {
     const base =
-        'flex items-center py-2 px-2 rounded-[16px] font-semibold transition hover:bg-white hover:text-black';
+        'flex items-center py-2 rounded-[16px] font-semibold transition hover:bg-white hover:text-black';
     const active = isActive ? 'bg-white text-black' : '';
     const Cmp = item.route ? Link : 'a';
     const props = item.route ? { href: item.route } : { href: item.href || '#' };
 
     return (
-        <Cmp {...props} className={`${base} ${active}`}>
-            <Icon icon={item.icon} width="20" height="20" className="mr-4" />
-            {!collapsed && <span>{item.label}</span>}
+        <Cmp
+            {...props}
+            className={`${base} ${active} ${collapsed ? 'justify-center px-0' : 'px-2'}`}
+            title={item.label}
+            aria-label={item.label}
+        >
+            <Icon
+                icon={item.icon}
+                width="20"
+                height="20"
+                className={collapsed ? '' : 'mr-4'}
+            />
+            {!collapsed && <span className="truncate">{item.label}</span>}
         </Cmp>
     );
 }
@@ -48,7 +57,6 @@ const MainLayout = ({ children }) => {
     const isActive = (item) => {
         const target = item.route ?? item.href ?? '#';
         if (target === '#') return false;
-        // simple startsWith match
         return url?.startsWith(target);
     };
 
@@ -60,11 +68,13 @@ const MainLayout = ({ children }) => {
                     isSidebarCollapsed ? 'w-16' : 'w-64'
                 }`}
             >
-                {/* Logo */}
-                <div className="flex items-center justify-between h-16 px-4 rounded-xl">
-                    {!isSidebarCollapsed ? <ApplicationLogo className="block h-8 ps-4 w-auto fill-current" /> : null}
+                {/* Logo + Toggle */}
+                <div className={`flex items-center justify-between h-16 px-4 rounded-xl`}>
+                    {!isSidebarCollapsed ? (
+                        <ApplicationLogo className="block h-8 ps-4 w-auto fill-current" />
+                    ) : null}
 
-                    <button onClick={toggleSidebar}>
+                    <button onClick={toggleSidebar} className="ml-auto">
                         {isSidebarCollapsed ? (
                             <Icon icon="material-symbols:menu-rounded" width="24" height="24" />
                         ) : (
@@ -74,13 +84,22 @@ const MainLayout = ({ children }) => {
                 </div>
 
                 {/* Menu */}
-                <nav className="flex-1 px-5 py-4">
+                <nav className={`flex-1 ${isSidebarCollapsed ? 'px-2' : 'px-5'} py-4`}>
                     {menus.map((section, si) => (
-                        <div key={si} className={section.sectionClass}>
+                        <div
+                            key={si}
+                            className={`${section.sectionClass} ${
+                                isSidebarCollapsed ? 'px-1' : ''
+                            }`}
+                        >
                             <ul className="space-y-1">
                                 {section.items.map((item, ii) => (
                                     <li key={ii}>
-                                        <NavItem item={item} isActive={isActive(item)} collapsed={isSidebarCollapsed} />
+                                        <NavItem
+                                            item={item}
+                                            isActive={isActive(item)}
+                                            collapsed={isSidebarCollapsed}
+                                        />
                                     </li>
                                 ))}
                             </ul>
@@ -99,8 +118,12 @@ const MainLayout = ({ children }) => {
                                 <ol className="flex list-none p-0">
                                     <li>
                                         <a href="#" className="text-blue-500">
-                                            <Icon icon="material-symbols:folder-rounded" width="24" height="24"
-                                                  className="text-gray-300" />
+                                            <Icon
+                                                icon="material-symbols:folder-rounded"
+                                                width="24"
+                                                height="24"
+                                                className="text-gray-300"
+                                            />
                                         </a>
                                     </li>
                                     <li>
@@ -109,7 +132,6 @@ const MainLayout = ({ children }) => {
                                     <li>{component}</li>
                                 </ol>
                             </nav>
-                            {/*<input/>*/}
                         </div>
                     </div>
                 </header>
@@ -121,7 +143,7 @@ const MainLayout = ({ children }) => {
                             <ol className="flex items-center list-none p-0">
                                 <li className="mr-4">
                                     <a href="#" className="text-blue-500">
-                                        <img src="img/icon-title.svg" alt="Icon Title"/>
+                                        <img src="img/icon-title.svg" alt="Icon Title" />
                                     </a>
                                 </li>
                                 <li>
@@ -131,9 +153,7 @@ const MainLayout = ({ children }) => {
                         </nav>
                     </div>
                     <div className="mx-auto max-w-7xl py-4 sm:px-6 lg:px-8">
-                        <div className="py-4 sm:rounded-lg bg-white">
-                            {children}
-                        </div>
+                        <div className="py-4 sm:rounded-lg bg-white">{children}</div>
                     </div>
                 </main>
             </div>
