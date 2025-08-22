@@ -14,7 +14,6 @@ class MenuSeeder extends Seeder
      */
     public function run(): void
     {
-        // Struktur tree dari gambar
         $tree = [
             [
                 'name' => 'System Management',
